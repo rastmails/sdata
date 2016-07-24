@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/198220/8c425c2059af46b79769b1cc64ca64b8
+bundleId: https://api.rpubs.com/api/v1/document/198220/8c425c2059af46b79769b1cc64ca64b8
+url: http://rpubs.com/rodrast/198220
+when: 1469378446.4533

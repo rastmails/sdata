@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Final Project - Stocks chart</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Final Project - Stocks chart">
+  <meta name="author" content="Rodrigo Alvarez">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Final Project - Stocks chart</h1>
+    <h2>with Shiny and Dygraphs</h2>
+    <p>Rodrigo Alvarez<br/>Coursera Student</p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Project Overview</h2>
+  </hgroup>
+  <article data-timings="">
+    <h3>Purpose:</h3>
+
+<p>Interactively explore the historical prices and returns of two user defined stocks</p>
+
+<h3>Steps:</h3>
+
+<ol>
+<li>Pull stocks from Yahoo finance</li>
+<li>Use dygraphs to visualize output</li>
+<li>Explore / analyze charts in an interactive fashion</li>
+</ol>
+
+<h3>Product:</h3>
+
+<p>This product is live at <a href="https://bolseando.shinyapps.io/stocksview/">https://bolseando.shinyapps.io/stocksview/</a></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Step 1: Pulling stock data from Yahoo! Finance</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>##The library <code> quantmod </code> is used to pull stock data from Yahoo! Finance. A ##basic pull is as follows:</p>
+
+<pre><code>library(quantmod)
+</code></pre>
+
+<pre><code>## Loading required package: xts
+</code></pre>
+
+<pre><code>## Loading required package: zoo
+</code></pre>
+
+<pre><code>## Warning: package &#39;zoo&#39; was built under R version 3.2.5
+</code></pre>
+
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;
+</code></pre>
+
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric
+</code></pre>
+
+<pre><code>## Loading required package: TTR
+</code></pre>
+
+<pre><code>## Warning: package &#39;TTR&#39; was built under R version 3.2.4
+</code></pre>
+
+<pre><code>## Version 0.4-0 included new data defaults. See ?getSymbols.
+</code></pre>
+
+<pre><code class="r">getSymbols(c(&#39;MSFT&#39;),src=&#39;yahoo&#39;)
+</code></pre>
+
+<pre><code>##     As of 0.4-0, &#39;getSymbols&#39; uses env=parent.frame() and
+##  auto.assign=TRUE by default.
+## 
+##  This  behavior  will be  phased out in 0.5-0  when the call  will
+##  default to use auto.assign=FALSE. getOption(&quot;getSymbols.env&quot;) and 
+##  getOptions(&quot;getSymbols.auto.assign&quot;) are now checked for alternate defaults
+## 
+##  This message is shown once per session and may be disabled by setting 
+##  options(&quot;getSymbols.warning4.0&quot;=FALSE). See ?getSymbols for more details.
+</code></pre>
+
+<p></br>
+The above pull returns the following time series (xts) object (the below data is pulled when this document is slidified):</p>
+
+<pre><code>##            MSFT.Open MSFT.High MSFT.Low MSFT.Close
+## 2007-01-03     29.91     30.25    29.40      29.86
+## 2007-01-04     29.70     29.97    29.44      29.81
+## 2007-01-05     29.63     29.75    29.45      29.64
+## 2007-01-08     29.65     30.10    29.53      29.93
+## 2007-01-09     30.00     30.18    29.73      29.96
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Step 2: Powerful graphing of time series objects</h2>
+  </hgroup>
+  <article data-timings="">
+    <h5>The time series object returned by <code>quantmod</code> :</h5>
+
+<ol>
+<li>It&#39;s indexed by date, so jumping to a date range is fast. Dygraphs takes advantge of this indexing for fast interactive charting.</li>
+<li>There are powerful time-related functions. For example, the <code>weeklyReturn</code> executes the following 2 steps:
+
+<ul>
+<li>1-line aggregation by time period (i.e., week, month, year)</li>
+<li>Calculate rate of return for that time period</li>
+</ul></li>
+</ol>
+
+<h5>The <code>weeklyReturn</code> commmand drives this graph of rates of return:</h5>
+
+<div style='text-align: center;'>
+    <img height='250' src='./assets/img/StockTracker_returns.png' />
+</div>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Step 3: An example analysis of two stocks</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>View the shinyapps.io site with default values: tickers &quot;AMZN&quot; and &quot;MSFT&quot;, dates &quot;2015-01-02&quot; to &quot;2015-11-20.&quot;</li>
+<li>Note large swings in the price of each stock at the end of January 2015.</li>
+<li>Zoom in on this time period, using the slider at the bottom of either chart.</li>
+<li>Hovering over the chart, we see exact prices and dates. We can discern that MSFT dropped from 47.01 to 40.4 in the same 4-day span that AMZN rose from 309.56 to 354.53. Some googling reveals root causes - that week, AMZN jumped on strong earnings, while MSFT fell on declining Windows revenues, and despite strong earnings.</li>
+<li>Explore more stock price data on your own!</li>
+</ol>
+
+<div style='text-align: center;'>
+    <img height='220' src='./assets/img/StockTracker_graph.png' />
+</div>
+
+<p></br></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Project Overview'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Step 1: Pulling stock data from Yahoo! Finance'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Step 2: Powerful graphing of time series objects'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Step 3: An example analysis of two stocks'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
